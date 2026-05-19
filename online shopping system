@@ -1,0 +1,211 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Product {
+    string name;
+    int id;
+    double price;
+};
+
+const int MAX_PRODUCTS = 200;
+const int MAX_ORDERS = 150;
+
+
+void createAccount(const string& user_name, const string& email, const string& password) {
+    cout << "Account Created Successfully!\n";
+    cout << "User Name: " << user_name << "\n";
+    cout << "Email: " << email << "\n";
+}
+
+void searchProduct(const Product products[], int productCount, const string& query) {
+    bool found = false;
+    for (int i = 0; i < productCount; i++) {
+        if (products[i].name == query) {
+            cout << "Product Found: \n";
+            cout << "ID: " << products[i].id << " - Name: " << products[i].name << " - Price: " << products[i].price << " $ " << "\n";
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        cout << "Product not found.\n";
+    }
+}
+
+void login(const string& username, const string& password) {
+    cout << "Login Successful!\n";
+    cout << "Username: " << username << "\n";
+    cout << "Password: " << password << "\n";
+}
+
+static void listProducts(const Product products[], int product_cnnt) {
+    if (product_cnnt == 0) {
+        cout << "No products available.\n";
+        return;
+    }
+    cout << "\nProducts Available:\nID - Name - Price";
+    for (int i = 0; i < product_cnnt; i++) {
+        cout << products[i].id << " - " << products[i].name << " - " << products[i].price << " $" << endl;
+    }
+}
+
+void addProduct(Product products[], int& pro_cnt) {
+    if (pro_cnt >= MAX_PRODUCTS) {
+        cout << " Storage full.\n";
+        return;
+    }
+
+    Product new_pro;
+    cout << "\nEnter Product ID: ";
+    cin >> new_pro.id;
+    cin.ignore();
+    cout << "Enter Product Name: ";
+    getline(cin, new_pro.name);
+    cout << "Enter Product Price: ";
+    cin >> new_pro.price;
+
+    products[pro_cnt++] = new_pro;
+    cout << "Product added successfully!\n";
+}
+
+void addOrder(const Product products[], int productCount, Product order[], int& orderCount) {
+    if (productCount == 0) {
+        cout << "No products available to order.\n";
+        return;
+    }
+
+    listProducts(products, productCount);
+
+    int id;
+    cout << "\nEnter Product ID to add to your order (or -1 to finish): ";
+
+    while (cin >> id && id != -1) {
+        bool flage = false;
+
+        for (int i = 0; i < productCount; i++) {
+            if (products[i].id == id) {
+                if (orderCount >= MAX_ORDERS) {
+                    cout << "Order is full..\n";
+                    return;
+                }
+                order[orderCount++] = products[i];
+                cout << "Added: " << products[i].name << endl;
+                flage = true;
+                break;
+            }
+        }
+        if (flage != true) cout << "Invalid ID. Try again.\n";
+        cout << "Enter another Product ID (or -1 to finish): ";
+    }
+}
+
+void viewOrder(const Product order[], int orderCount) {
+    if (orderCount == 0) {
+        cout << "Your order is empty.\n";
+        return;
+    }
+
+    cout << "\nYour Order:\n";
+    double total = 0;
+    for (int i = 0; i < orderCount; i++) {
+        cout << order[i].id << " - " << order[i].name << " - " << order[i].price << " $" << endl;
+        total += order[i].price;
+    }
+    cout << "Total Amount: " << total << " $" << endl;
+}
+
+void deleteProduct(Product products[], int& productCount, int productId) {
+    bool flage_2 = false;
+
+    for (int i = 0; i < productCount; i++) {
+        if (products[i].id == productId) {
+
+            for (int j = i; j < productCount - 1; j++)
+            {
+                products[j] = products[j + 1];
+            }
+            productCount--;
+            flage_2 = true;
+            cout << "Product deleted successfully.\n";
+            break;
+        }
+    }
+
+    if (flage_2 != true) {
+        cout << "Product not found.\n";
+    }
+}
+
+int main() {
+    Product products[MAX_PRODUCTS];
+    Product order[MAX_ORDERS];
+    int product_cnt = 0, order_cnt = 0;
+
+    int choice;
+    cout << endl;
+    cout << "\t\t\t\tWelcome to Online Shopping System\n";
+    cout << "-----------------------------------------------------------------------------------------------------------------------" << endl;
+
+    do {
+        cout << "\n--- Online Shopping System ---\n";
+        cout << "1. Create Account\n";
+        cout << "2. Add Product\n";
+        cout << "3. List Products\n";
+        cout << "4. Add to Order\n";
+        cout << "5. View Order\n";
+        cout << "6. Delete Product\n";
+        cout << "7. Search product\n";
+        cout << "8. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1: {
+            string user_name, email, password;
+            cout << "Enter user name: ";
+            cin >> user_name;
+            cout << "Enter email: " << endl;
+            cin >> email;
+            cout << "Enter password: " << endl;
+            cin >> password;
+            createAccount(user_name, email, password);
+            break;
+        }
+        case 2:
+            addProduct(products, product_cnt);
+            break;
+        case 3:
+            listProducts(products, product_cnt);
+            break;
+        case 4:
+            addOrder(products, product_cnt, order, order_cnt);
+            break;
+        case 5:
+            viewOrder(order, order_cnt);
+            break;
+        case 6: {
+            int product_Id;
+            cout << "Enter the product ID to delete: ";
+            cin >> product_Id;
+            deleteProduct(products, product_cnt, product_Id);
+            break;
+        }
+        case 7: {
+            string query;
+            cout << "Enter product name to search: ";
+            cin >> query;
+            searchProduct(products, product_cnt, query);
+            break;
+        }
+        case 8:
+            cout << "Exiting program. Thank you!\n";
+            break;
+
+        default:
+            cout << "Invalid choice. Try again.\n";
+        }
+    } while (choice != 8);
+
+    return 0;
+}
